@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Lista pieśni{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <section id="lista-piesni">
+    {% for hymn in hymns %}
+    <a href="/edit/{{ hymn }}">{{ hymn }}</a>
+    {% if hymn in hymns_with_chords %}
+      <span>DONE!</span>
+    {% endif %}
+    <br>
+    {% endfor %}
+  </section>
+{% endblock %}

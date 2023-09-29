@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "lyrics-chordifier"
+version = "0.1.0"
+description = "Aplikacja do dodawania akordów do pieśni ze Śpiewnika Pielgrzyma"
+authors = ["Norbiox <norbertchmiel.it@gmail.com>"]
+readme = "README.md"
+packages = [{include = "lyrics_chordifier"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Flask = "^2.3.3"
+boto3 = "^1.28.56"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

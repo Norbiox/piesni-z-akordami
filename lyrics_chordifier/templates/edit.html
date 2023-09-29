@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ hymn_title }}{% endblock %}
+
+{% block content %}
+  <section id="edycja">
+    {% for line in lyrics %}
+      <div style="display: flex; flex-wrap: wrap; font-family: monospace;">
+      {% for character in line %}
+        <div>
+          <div>?</div>
+          <div>
+            {% if character == ' ' %}
+            &nbsp;
+            {% else %}
+            {{ character }}
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    {% endfor %} 
+  </section>
+{% endblock %}
