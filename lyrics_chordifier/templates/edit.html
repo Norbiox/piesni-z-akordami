@@ -5,10 +5,10 @@
 {% block content %}
   <section id="edycja">
     {% for line in lyrics %}
-      <div style="display: flex; flex-wrap: wrap; font-family: monospace;">
+      <div id="line_{{ loop.index }}" class="d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
       {% for character in line %}
-        <div>
-          <div>?</div>
+        <div id="char_{{ loop.index }}">
+          <div></div>
           <div>
             {% if character == ' ' %}
             &nbsp;
