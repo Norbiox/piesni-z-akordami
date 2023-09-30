@@ -9,7 +9,7 @@ blueprint = Blueprint("views", __name__)
 @blueprint.route("/", methods=["GET"])
 def index() -> str:
     repo = HymnRepository(get_database())
-    return render_template("index.html", hymns=repo.get_hymns())
+    return render_template("index.html", hymns=sorted(repo.get_hymns(), key=lambda x: x.number))
 
 
 @blueprint.route("/edit/<uid>", methods=["GET"])

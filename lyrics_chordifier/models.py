@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import roman
+
 
 class Hymn:
     def __init__(self, uid: str, title: str, lyrics: tuple[tuple[str]]):
@@ -28,6 +30,15 @@ class Hymn:
     @property
     def chords(self) -> tuple[tuple[str]] | None:
         return self._chords
+
+    @property
+    def number(self) -> int:
+        """Returns hymn number"""
+        num = self.title.split()[0].strip(".")
+        try:
+            return int(num)
+        except ValueError:
+            return 875 + roman.fromRoman(num)
 
     @chords.setter
     def chords(self, new_chords: tuple[tuple[str]] | None) -> None:
