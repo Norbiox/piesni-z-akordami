@@ -4,11 +4,21 @@ import roman
 
 
 class Hymn:
-    def __init__(self, uid: str, title: str, lyrics: tuple[tuple[str]]):
+    def __init__(
+        self,
+        uid: str,
+        title: str,
+        lyrics: tuple[tuple[str]],
+        chords: tuple[tuple[str]] | None = None,
+        chords_verified: bool = False,
+    ):
         self._uid: str = uid
         self._title: str = title
         self._lyrics: tuple[tuple[str]] = lyrics
-        self._chords: tuple[tuple[str]] | None = None
+        chords = chords or tuple(tuple("" for _ in line) for line in lyrics)
+        self._validate_chords(chords)
+        self._chords: tuple[tuple[str]] = chords
+        self.chords_verified = chords_verified
 
     @classmethod
     def from_text(cls, uid: str, text: str) -> Hymn:
@@ -28,8 +38,26 @@ class Hymn:
         return self._lyrics
 
     @property
-    def chords(self) -> tuple[tuple[str]] | None:
+    def chords(self) -> tuple[tuple[str]]:
         return self._chords
+
+    @chords.setter
+    def chords(self, new_chords: tuple[tuple[str]]) -> None:
+        self._validate_chords(new_chords)
+        self._chords = new_chords
+
+    @property
+    def has_chords(self) -> bool:
+        """Checks if hymn has any chords
+
+        >>> hymn = Hymn("x", "Title", (("A", "n"), ("L", "i", "n", "e")))
+        >>> hymn.has_chords
+        False
+        >>> hymn.chords = (("", ""), ("C", "", "", ""))
+        >>> hymn.has_chords
+        True
+        """
+        return any(''.join(line) for line in self.chords)
 
     @property
     def number(self) -> int:
@@ -40,12 +68,7 @@ class Hymn:
         except ValueError:
             return 875 + roman.fromRoman(num)
 
-    @chords.setter
-    def chords(self, new_chords: tuple[tuple[str]] | None) -> None:
-        self._validate_chords(new_chords)
-        self._chords = new_chords
-
-    def _validate_chords(self, chords: tuple[tuple[str]] | None) -> None:
+    def _validate_chords(self, chords: tuple[tuple[str]]) -> None:
         """Checks validity of set of chords versus hymns lyrics
 
         >>> hymn = Hymn.from_text("test", "1. Title\\nLine1")
@@ -66,9 +89,6 @@ class Hymn:
             ...
         ValueError: Line 1 - wrong number of chords: expected 5, got 6
         """
-        if chords is None:
-            return
-
         if len(chords) != len(self.lyrics):
             raise ValueError(
                 f"Wrong number of lines: expected {len(self.lyrics)}, got {len(chords)}"
@@ -85,12 +105,12 @@ class Hymn:
             "title": self.title,
             "lyrics": self.lyrics,
             "chords": self.chords,
+            "chords_verified": self.chords_verified,
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> Hymn:
-        hymn = cls(data["uid"], data["title"], data["lyrics"])
-        hymn.chords = data["chords"]
+        hymn = cls(**data)
         return hymn
 
 
