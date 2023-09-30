@@ -7,15 +7,20 @@ Character = NamedTuple("Character", line=int, char=int)
 
 
 class Hymn(persistent.Persistent):
-    def __init__(self, title: str, lyrics: tuple[tuple[str]]):
+    def __init__(self, uid: str, title: str, lyrics: tuple[tuple[str]]):
+        self._uid: str = uid
         self._title: str = title
         self._lyrics: tuple[tuple[str]] = lyrics
-        self._chords: tuple[tuple[str]] = tuple(tuple("" for _ in line) for line in lyrics)
+        self._chords: tuple[tuple[str]] | None = None
 
     @classmethod
-    def from_text(cls, text: str) -> Hymn:
+    def from_text(cls, uid: str, text: str) -> Hymn:
         """Creates hymn from text"""
-        return cls(title(text), lyrics(text))
+        return cls(uid, title(text), lyrics(text))
+
+    @property
+    def uid(self) -> str:
+        return self._uid
 
     @property
     def title(self) -> str:
@@ -26,18 +31,18 @@ class Hymn(persistent.Persistent):
         return self._lyrics
 
     @property
-    def chords(self) -> tuple[tuple[str]]:
+    def chords(self) -> tuple[tuple[str]] | None:
         return self._chords
 
     @chords.setter
-    def chords(self, new_chords: tuple[tuple[str]]) -> None:
+    def chords(self, new_chords: tuple[tuple[str]] | None) -> None:
         self._validate_chords(new_chords)
         self._chords = new_chords
 
-    def _validate_chords(self, chords: tuple[tuple[str]]) -> None:
+    def _validate_chords(self, chords: tuple[tuple[str]] | None) -> None:
         """Checks validity of set of chords versus hymns lyrics
 
-        >>> hymn = Hymn.from_text("1. Title\\nLine1")
+        >>> hymn = Hymn.from_text("test", "1. Title\\nLine1")
         >>> hymn._validate_chords(()) # missing lines
         Traceback (most recent call last):
             ...
@@ -55,6 +60,9 @@ class Hymn(persistent.Persistent):
             ...
         ValueError: Line 1 - wrong number of chords: expected 5, got 6
         """
+        if chords is None:
+            return
+
         if len(chords) != len(self.lyrics):
             raise ValueError(
                 f"Wrong number of lines: expected {len(self.lyrics)}, got {len(chords)}"

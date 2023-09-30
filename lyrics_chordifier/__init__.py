@@ -1,32 +1,30 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, g
 
-from .api import blueprint as api_blueprint
+from lyrics_chordifier.db import create_database
+
 from .views import blueprint as views_blueprint
 
 load_dotenv()
 
 
-def create_app(test_config=None):
+def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "dev"),
-        BUCKET_ENDPOINT_URL=os.getenv("BUCKET_ENDPOINT_URL"),
-        BUCKET_ACCESS_KEY_ID=os.getenv("BUCKET_ACCESS_KEY_ID"),
-        BUCKET_SECRET_ACCESS_KEY=os.getenv("BUCKET_SECRET_ACCESS_KEY"),
+        HYMNS_PATH=os.getenv("HYMNS_PATH", "hymns"),
+        DATABASE_PATH=os.getenv("DATABASE_PATH", "data/database.fs"),
     )
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
+    if not os.path.isdir(app.config["HYMNS_PATH"]):
+        raise FileNotFoundError(app.config["HYMNS_PATH"])
 
-    app.register_blueprint(api_blueprint)
+    if not os.path.isdir(os.path.dirname(app.config["DATABASE_PATH"])):
+        os.makedirs(os.path.dirname(app.config["DATABASE_PATH"]))
+
     app.register_blueprint(views_blueprint)
 
     return app

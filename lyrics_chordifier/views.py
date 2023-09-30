@@ -1,23 +1,21 @@
-from flask import Blueprint, current_app as app, render_template
+from flask import Blueprint, render_template, current_app as app
 
-from lyrics_chordifier.models import title, lyrics
-
-from .repository import S3ApplicactionRepository
-from .s3 import get_s3_client
+from .db import create_database
 
 blueprint = Blueprint("views", __name__)
 
 
 @blueprint.route("/", methods=["GET"])
 def index() -> str:
-    repo = S3ApplicactionRepository(get_s3_client(app), None)
-    hymns = repo.get_hymns()
-    hymns_with_lyrics = repo.get_hymns_with_lyrics()
-    return render_template("index.html", hymns=hymns, hymns_with_lyrics=hymns_with_lyrics)
+    database = create_database(app.config["HYMNS_PATH"], app.config["DATABASE_PATH"])
+    with database.transaction() as connection:
+        hymns = list(connection.root().values())
+    return render_template("index.html", hymns=hymns)
 
 
-@blueprint.route("/edit/<name>", methods=["GET"])
-def edit(name: str) -> str:
-    repo = S3ApplicactionRepository(get_s3_client(app), None)
-    hymn = repo.get_hymn(name)
-    return render_template("edit.html", hymn_name=name, hymn_title=title(hymn), lyrics=lyrics(hymn))
+@blueprint.route("/edit/<uid>", methods=["GET"])
+def edit(uid: str) -> str:
+    database = create_database(app.config["HYMNS_PATH"], app.config["DATABASE_PATH"])
+    with database.transaction() as connection:
+        hymn = connection.root()[uid]
+    return render_template("edit.html", hymn=hymn)
