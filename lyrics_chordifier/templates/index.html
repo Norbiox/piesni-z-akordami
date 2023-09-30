@@ -8,7 +8,7 @@
   <section id="lista-piesni">
     {% for hymn in hymns %}
     <a href="/edit/{{ hymn.uid }}">{{ hymn.uid }}</a>
-    {% if hymn.chords is not None %}
+    {% if hymn.chords is not none %}
       <span>DONE!</span>
     {% endif %}
     <br>

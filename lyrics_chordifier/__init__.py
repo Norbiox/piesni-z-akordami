@@ -1,9 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, g
-
-from lyrics_chordifier.db import create_database
+from flask import Flask
 
 from .views import blueprint as views_blueprint
 
@@ -16,7 +14,7 @@ def create_app():
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "dev"),
         HYMNS_PATH=os.getenv("HYMNS_PATH", "hymns"),
-        DATABASE_PATH=os.getenv("DATABASE_PATH", "data/database.fs"),
+        DATABASE_PATH=os.getenv("DATABASE_PATH", "data/db.json"),
     )
 
     if not os.path.isdir(app.config["HYMNS_PATH"]):

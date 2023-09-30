@@ -1,12 +1,10 @@
 from __future__ import annotations
 from typing import NamedTuple
 
-import persistent
-
 Character = NamedTuple("Character", line=int, char=int)
 
 
-class Hymn(persistent.Persistent):
+class Hymn:
     def __init__(self, uid: str, title: str, lyrics: tuple[tuple[str]]):
         self._uid: str = uid
         self._title: str = title
@@ -72,6 +70,20 @@ class Hymn(persistent.Persistent):
                 raise ValueError(
                     f"Line {i+1} - wrong number of chords: expected {len(lyrics_line)}, got {len(chords_line)}"
                 )
+
+    def to_dict(self) -> dict:
+        return {
+            "uid": self.uid,
+            "title": self.title,
+            "lyrics": self.lyrics,
+            "chords": self.chords,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Hymn:
+        hymn = cls(data["uid"], data["title"], data["lyrics"])
+        hymn.chords = data["chords"]
+        return hymn
 
 
 def title(hymn: str) -> str:
