@@ -21,3 +21,6 @@ class HymnRepository:
             raise ValueError(f"Multiple hymns with uid {uid} found")
 
         return Hymn.from_dict(hymn)
+
+    def save_hymn(self, hymn: Hymn) -> None:
+        self.database.update(hymn.to_dict(), Query().uid == hymn.uid)
