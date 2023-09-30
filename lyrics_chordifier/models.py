@@ -1,7 +1,4 @@
 from __future__ import annotations
-from typing import NamedTuple
-
-Character = NamedTuple("Character", line=int, char=int)
 
 
 class Hymn:
