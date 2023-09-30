@@ -3,19 +3,22 @@ import os
 from loguru import logger
 from tinydb import TinyDB
 from tqdm import tqdm
+from flask import current_app, g
 
 from .models import Hymn
 
 
-def create_database(hymns_texts_directory: str, db_path: str) -> TinyDB:
+def get_database() -> TinyDB:
     """Create an instance of TinyDB database"""
-    logger.info("Creating database...")
-    database = TinyDB(db_path)
-    if database.all():
-        return database
+    if "db" not in g:
+        g.db = TinyDB(current_app.config["DATABASE_PATH"])
+
+    if g.db.all():
+        return g.db
 
     logger.info(f"Inserting hymns...")
-    for file in tqdm(os.listdir(hymns_texts_directory)):
-        with open(os.path.join(hymns_texts_directory, file), "r", encoding="utf-8") as body:
-            database.insert(Hymn.from_text(file, body.read()).to_dict())
-    return database
+    for file in tqdm(os.listdir(current_app.config["HYMNS_PATH"])):
+        filepath = os.path.join(current_app.config["HYMNS_PATH"], file)
+        with open(filepath, "r", encoding="utf-8") as body:
+            g.db.insert(Hymn.from_text(file, body.read()).to_dict())
+    return g.db
