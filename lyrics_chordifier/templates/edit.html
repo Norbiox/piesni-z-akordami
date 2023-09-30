@@ -4,6 +4,7 @@
 
 {% block content %}
   <section id="edycja">
+    <h3>{{ hymn.title }}</h3>
     {% for line in hymn.lyrics %}
       <div id="line_{{ loop.index }}" class="d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
       {% for character in line %}
