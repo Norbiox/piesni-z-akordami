@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lyrics-chordifier"
+name = "hymny-z-akordami"
 version = "0.1.0"
 description = "Aplikacja do dodawania akordów do pieśni ze Śpiewnika Pielgrzyma"
 authors = ["Norbiox <norbertchmiel.it@gmail.com>"]
