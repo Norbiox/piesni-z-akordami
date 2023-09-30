@@ -7,10 +7,7 @@
 {% block content %}
   <section id="lista-piesni">
     {% for hymn in hymns %}
-    <a href="/edit/{{ hymn.uid }}">{{ hymn.uid }}</a>
-    {% if hymn.chords is not none %}
-      <span>DONE!</span>
-    {% endif %}
+    <a href="/edit/{{ hymn.uid }}">{{ hymn.uid }}{{ ' - chords added' if hymn.has_chords  else '' }}{{ ' and verified' if hymn.chords_verified else '' }}</a>
     <br>
     {% endfor %}
   </section>
