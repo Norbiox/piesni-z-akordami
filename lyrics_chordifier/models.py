@@ -1,4 +1,69 @@
 from __future__ import annotations
+from typing import NamedTuple
+
+import persistent
+
+Character = NamedTuple("Character", line=int, char=int)
+
+
+class Hymn(persistent.Persistent):
+    def __init__(self, title: str, lyrics: tuple[tuple[str]]):
+        self._title: str = title
+        self._lyrics: tuple[tuple[str]] = lyrics
+        self._chords: tuple[tuple[str]] = tuple(tuple("" for _ in line) for line in lyrics)
+
+    @classmethod
+    def from_text(cls, text: str) -> Hymn:
+        """Creates hymn from text"""
+        return cls(title(text), lyrics(text))
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @property
+    def lyrics(self) -> tuple[tuple[str]]:
+        return self._lyrics
+
+    @property
+    def chords(self) -> tuple[tuple[str]]:
+        return self._chords
+
+    @chords.setter
+    def chords(self, new_chords: tuple[tuple[str]]) -> None:
+        self._validate_chords(new_chords)
+        self._chords = new_chords
+
+    def _validate_chords(self, chords: tuple[tuple[str]]) -> None:
+        """Checks validity of set of chords versus hymns lyrics
+
+        >>> hymn = Hymn.from_text("1. Title\\nLine1")
+        >>> hymn._validate_chords(()) # missing lines
+        Traceback (most recent call last):
+            ...
+        ValueError: Wrong number of lines: expected 1, got 0
+        >>> hymn._validate_chords((("", "", "", "", ""), ("", ""))) # too many lines
+        Traceback (most recent call last):
+            ...
+        ValueError: Wrong number of lines: expected 1, got 2
+        >>> hymn._validate_chords((("", "", "", ""),))  # missing character
+        Traceback (most recent call last):
+            ...
+        ValueError: Line 1 - wrong number of chords: expected 5, got 4
+        >>> hymn._validate_chords((("", "", "", "", "", ""),))  # too many characters
+        Traceback (most recent call last):
+            ...
+        ValueError: Line 1 - wrong number of chords: expected 5, got 6
+        """
+        if len(chords) != len(self.lyrics):
+            raise ValueError(
+                f"Wrong number of lines: expected {len(self.lyrics)}, got {len(chords)}"
+            )
+        for i, (chords_line, lyrics_line) in enumerate(zip(chords, self.lyrics)):
+            if len(chords_line) != len(lyrics_line):
+                raise ValueError(
+                    f"Line {i+1} - wrong number of chords: expected {len(lyrics_line)}, got {len(chords_line)}"
+                )
 
 
 def title(hymn: str) -> str:
