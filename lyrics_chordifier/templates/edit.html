@@ -6,9 +6,11 @@
   <section id="edycja">
     <h3>{{ hymn.title }}</h3>
     {% for line in hymn.lyrics %}
-      <div id="line_{{ loop.index }}" class="d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
+      {% set line_i = loop.index %}
+      <div class="d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
       {% for character in line %}
-        <div id="char_{{ loop.index }}">
+        {% set character_i = loop.index %}
+        <div id="line_{{ line_i }}_char_{{ character_i }}" onclick="chord_menu('line_{{ line_i }}_char_{{ character_i }}')">
           <div></div>
           <div>
             {% if character == ' ' %}
@@ -22,4 +24,10 @@
       </div>
     {% endfor %} 
   </section>
+
+  <script>
+    let chord_menu = function(char_id) {
+      console.log(`Character ${char_id} has been clicked`)
+    }
+  </script>
 {% endblock %}
