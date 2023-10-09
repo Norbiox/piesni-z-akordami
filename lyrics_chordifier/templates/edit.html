@@ -63,10 +63,24 @@
       document.getElementById(char_id).classList.add("border", "border-danger")
     }
 
-    // Set chord for currently marked character
+    // Set chord for currently marked character and send to backend
     let setChord = function(charId, chord) {
-      console.log(`Setting chord ${chord} on character ${charId}`)
       document.getElementById(charId).children[0].innerHTML = chord
+      line = currentMarkId.split("_")[1] - 1
+      character = currentMarkId.split("_")[3] - 1
+      chord = chord.trim()
+      console.log(`Setting chord ${chord} on character ${charId}`)
+      fetch(
+        "{{ url_for('views.add_chord', uid=hymn.uid) }}", 
+        {
+          method: "POST",
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({line: line, character: character, chord: chord})
+        }
+      ).then((response) => {console.log(response)})
     }
   </script>
 {% endblock %}

@@ -8,16 +8,16 @@ class Hymn:
         self,
         uid: str,
         title: str,
-        lyrics: tuple[tuple[str]],
-        chords: tuple[tuple[str]] | None = None,
+        lyrics: list[list[str]],
+        chords: list[list[str]] | None = None,
         chords_verified: bool = False,
     ):
         self._uid: str = uid
         self._title: str = title
-        self._lyrics: tuple[tuple[str]] = lyrics
-        chords = chords or tuple(tuple("" for _ in line) for line in lyrics)
+        self._lyrics: list[list[str]] = lyrics
+        chords = chords or list(list("" for _ in line) for line in lyrics)
         self._validate_chords(chords)
-        self._chords: tuple[tuple[str]] = chords
+        self._chords: list[list[str]] = chords
         self.chords_verified = chords_verified
 
     @classmethod
@@ -34,17 +34,20 @@ class Hymn:
         return self._title
 
     @property
-    def lyrics(self) -> tuple[tuple[str]]:
+    def lyrics(self) -> list[list[str]]:
         return self._lyrics
 
     @property
-    def chords(self) -> tuple[tuple[str]]:
+    def chords(self) -> list[list[str]]:
         return self._chords
 
     @chords.setter
-    def chords(self, new_chords: tuple[tuple[str]]) -> None:
+    def chords(self, new_chords: list[list[str]]) -> None:
         self._validate_chords(new_chords)
         self._chords = new_chords
+
+    def set_chord(self, line: int, character: int, chord: str) -> None:
+        self.chords[line][character] = chord
 
     @property
     def has_chords(self) -> bool:
@@ -57,7 +60,7 @@ class Hymn:
         >>> hymn.has_chords
         True
         """
-        return any(''.join(line) for line in self.chords)
+        return any("".join(line) for line in self.chords)
 
     @property
     def number(self) -> int:
@@ -68,7 +71,7 @@ class Hymn:
         except ValueError:
             return 875 + roman.fromRoman(num)
 
-    def _validate_chords(self, chords: tuple[tuple[str]]) -> None:
+    def _validate_chords(self, chords: list[list[str]]) -> None:
         """Checks validity of set of chords versus hymns lyrics
 
         >>> hymn = Hymn.from_text("test", "1. Title\\nLine1")
@@ -123,7 +126,7 @@ def title(hymn: str) -> str:
     return hymn.split("\n")[0]
 
 
-def lyrics(hymn: str) -> tuple[tuple[str]]:
+def lyrics(hymn: str) -> list[list[str]]:
     """Returns lyrics of hymn as characters per line
 
     >>> lyrics("1. Title\\nLine1\\nLine2")
@@ -133,7 +136,7 @@ def lyrics(hymn: str) -> tuple[tuple[str]]:
     >>> lyrics("1. Title\\nLine with spaces")
     (('L', 'i', 'n', 'e', ' ', 'w', 'i', 't', 'h', ' ', 's', 'p', 'a', 'c', 'e', 's'),)
     """
-    return tuple(tuple(line) for line in hymn.replace("\n\n", "\n").split("\n")[1:])
+    return list(list(line) for line in hymn.replace("\n\n", "\n").split("\n")[1:])
 
 
 if __name__ == "__main__":
