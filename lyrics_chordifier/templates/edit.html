@@ -3,15 +3,39 @@
 {% block title %}{{ hymn.title }}{% endblock %}
 
 {% block content %}
-  <section id="edycja">
+  <div id="chords_menu" class="sticky-top justify-content-center" style="width: 100%;">
+    <div class="d-flex flex-row justify-content-center">
+      {% for chord_base in ("c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "b", "h") %}
+        <div class="btn-group-vertical btn-group-sm" role="toolbar">
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base.title() }}')">{{ chord_base.title() }}</button>
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base }}')">{{ chord_base }}</button>
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base.title() }}7')">{{ chord_base.title() }}7</button>
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base }}7')">{{ chord_base }}7</button>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="d-flex flex-row justify-content-center">
+      <button type="button" class="resetChordButton btn btn-primary" onclick="setChord(currentMarkId, '&nbsp;')">Reset</button>
+    </div>
+  </div>
+
+
+  <section id="edycja" style="user-select: none;">
     <h3>{{ hymn.title }}</h3>
     {% for line in hymn.lyrics %}
       {% set line_i = loop.index %}
       <div class="d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
       {% for character in line %}
         {% set character_i = loop.index %}
-        <div id="line_{{ line_i }}_char_{{ character_i }}" onclick="chord_menu('line_{{ line_i }}_char_{{ character_i }}')">
-          <div></div>
+        <div class="character" id="line_{{ line_i }}_char_{{ character_i }}" onclick="mark('line_{{ line_i }}_char_{{ character_i }}')">
+          <div style="font-weight: 700;">
+            {% set chord = hymn.chords[line_i - 1][character_i - 1] %}
+            {% if chord %}
+              {{ chord }}
+            {% else %}
+              &nbsp;
+            {% endif %}
+          </div>
           <div>
             {% if character == ' ' %}
             &nbsp;
@@ -26,8 +50,23 @@
   </section>
 
   <script>
-    let chord_menu = function(char_id) {
+    let currentMarkId = null;
+
+    // Mark clicked character as currently edited - sets 'currentMarkId' variable for chord setting
+    let mark = function(char_id) {
       console.log(`Character ${char_id} has been clicked`)
+      // remove border from all characters
+      Array.from(document.getElementsByClassName("character")).forEach((el) => {el.classList.remove("border", "border-danger")})
+      // set currently marked character
+      currentMarkId = char_id
+      // add border to currently marked character
+      document.getElementById(char_id).classList.add("border", "border-danger")
+    }
+
+    // Set chord for currently marked character
+    let setChord = function(charId, chord) {
+      console.log(`Setting chord ${chord} on character ${charId}`)
+      document.getElementById(charId).children[0].innerHTML = chord
     }
   </script>
 {% endblock %}
