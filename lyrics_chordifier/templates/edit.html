@@ -3,19 +3,20 @@
 {% block title %}{{ hymn.title }}{% endblock %}
 
 {% block content %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='keyboard.js') }}">
   <div id="chords_menu" class="sticky-top justify-content-center" style="width: 100%;">
     <div class="d-flex flex-row justify-content-center">
       {% for chord_base in ("c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "b", "h") %}
         <div class="btn-group-vertical btn-group-sm" role="toolbar">
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base.title() }}')">{{ chord_base.title() }}</button>
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base }}')">{{ chord_base }}</button>
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base.title() }}7')">{{ chord_base.title() }}7</button>
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord(currentMarkId, '{{ chord_base }}7')">{{ chord_base }}7</button>
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base.title() }}')">{{ chord_base.title() }}</button>
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base }}')">{{ chord_base }}</button>
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base.title() }}7')">{{ chord_base.title() }}7</button>
+          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base }}7')">{{ chord_base }}7</button>
         </div>
       {% endfor %}
     </div>
     <div class="d-flex flex-row justify-content-center">
-      <button type="button" class="resetChordButton btn btn-primary" onclick="setChord(currentMarkId, '&nbsp;')">Reset</button>
+      <button type="button" class="resetChordButton btn btn-primary" onclick="setChord('&nbsp;')">Reset</button>
     </div>
   </div>
 
@@ -24,10 +25,10 @@
     <h3>{{ hymn.title }}</h3>
     {% for line in hymn.lyrics %}
       {% set line_i = loop.index %}
-      <div class="d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
+      <div class="line d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
       {% for character in line %}
         {% set character_i = loop.index %}
-        <div class="character" id="line_{{ line_i }}_char_{{ character_i }}" onclick="mark('line_{{ line_i }}_char_{{ character_i }}')">
+        <div class="character" id="line_{{ line_i }}_char_{{ character_i }}" onclick="mark({{ line_i }}, {{ character_i }})">
           <div style="font-weight: 700;">
             {% set chord = hymn.chords[line_i - 1][character_i - 1] %}
             {% if chord %}
@@ -50,26 +51,37 @@
   </section>
 
   <script>
-    let currentMarkId = null;
+    const linesNumber = document.getElementsByClassName('line').length
+    console.log(`Number of lines: ${linesNumber}`)
 
-    // Mark clicked character as currently edited - sets 'currentMarkId' variable for chord setting
-    let mark = function(char_id) {
-      console.log(`Character ${char_id} has been clicked`)
+    const charactersNumber = []
+    for (i=0; i<linesNumber; i++) {
+      charactersNumber.push(document.getElementsByClassName('line')[i].getElementsByClassName('character').length)
+      console.log(`Number of characters in line ${i}: ${charactersNumber[i]}`)
+    }
+
+    const coordsToId = (line, character) => `line_${line}_char_${character}`
+    const idToCoords = (id) => [id.split("_")[1] - 1, id.split("_")[3] - 1]
+
+    let currentMark = [0, 0];
+
+    // Mark clicked character as currently edited - sets 'currentMark' variable for chord setting
+    let mark = function(line, character) {
       // remove border from all characters
       Array.from(document.getElementsByClassName("character")).forEach((el) => {el.classList.remove("border", "border-danger")})
       // set currently marked character
-      currentMarkId = char_id
+      currentMark = [line, character]
       // add border to currently marked character
-      document.getElementById(char_id).classList.add("border", "border-danger")
+      document.getElementById(coordsToId(line, character)).classList.add("border", "border-danger")
     }
 
-    // Set chord for currently marked character and send to backend
-    let setChord = function(charId, chord) {
-      document.getElementById(charId).children[0].innerHTML = chord
-      line = currentMarkId.split("_")[1] - 1
-      character = currentMarkId.split("_")[3] - 1
-      chord = chord.trim()
+    // Set chord for currently marked character (or any given) and send to backend
+    let setChord = function(chord, mark=currentMark) {
+      let charId = coordsToId(...mark)
       console.log(`Setting chord ${chord} on character ${charId}`)
+      document.getElementById(charId).children[0].innerHTML = chord
+      let [line, character] = mark
+      chord = chord.trim()
       fetch(
         "{{ url_for('views.add_chord', uid=hymn.uid) }}", 
         {
