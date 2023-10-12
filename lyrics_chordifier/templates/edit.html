@@ -24,11 +24,11 @@
   <section id="edycja" style="user-select: none;">
     <h3>{{ hymn.title }}</h3>
     {% for line in hymn.lyrics %}
-      {% set line_i = loop.index %}
+      {% set line_i = loop.index - 1 %}
       <div class="line d-flex flex-row flex-wrap mb-3" style="font-family: monospace;">
       {% for character in line %}
-        {% set character_i = loop.index %}
-        <div class="character" id="line_{{ line_i }}_char_{{ character_i }}" onclick="mark({{ line_i }}, {{ character_i }})">
+        {% set character_i = loop.index - 1 %}
+        <div class="character" id="line_{{ line_i }}_char_{{ character_i }}" onclick="setMark({{ line_i }}, {{ character_i }})">
           <div style="font-weight: 700;">
             {% set chord = hymn.chords[line_i - 1][character_i - 1] %}
             {% if chord %}
@@ -63,23 +63,23 @@
     const coordsToId = (line, character) => `line_${line}_char_${character}`
     const idToCoords = (id) => [id.split("_")[1] - 1, id.split("_")[3] - 1]
 
-    let currentMark = [0, 0];
+    var currentMark = [0, 0];
+    const characterDiv = (mark=currentMark) => document.getElementById(coordsToId(...mark))
 
     // Mark clicked character as currently edited - sets 'currentMark' variable for chord setting
-    let mark = function(line, character) {
+    const setMark = function(line, character) {
       // remove border from all characters
       Array.from(document.getElementsByClassName("character")).forEach((el) => {el.classList.remove("border", "border-danger")})
       // set currently marked character
       currentMark = [line, character]
       // add border to currently marked character
-      document.getElementById(coordsToId(line, character)).classList.add("border", "border-danger")
+      characterDiv().classList.add("border", "border-danger")
     }
 
     // Set chord for currently marked character (or any given) and send to backend
-    let setChord = function(chord, mark=currentMark) {
-      let charId = coordsToId(...mark)
-      console.log(`Setting chord ${chord} on character ${charId}`)
-      document.getElementById(charId).children[0].innerHTML = chord
+    const setChord = function(chord, mark=currentMark) {
+      console.log(`Setting chord ${chord} on current character`)
+      characterDiv(mark).children[0].innerHTML = chord
       let [line, character] = mark
       chord = chord.trim()
       fetch(
@@ -94,5 +94,27 @@
         }
       ).then((response) => {console.log(response)})
     }
+
+    // Navigation functions
+    const nextLetter = function(line, character) {
+      if (line == linesNumber - 1 && character >= charactersNumber[line] - 1) return [linesNumber - 1, charactersNumber[line] - 1] // stay on last letter
+      if (character >= charactersNumber[line] - 1) return [line + 1, 0] // move next line
+      return [line, character + 1] // move next letter
+    }
+    const prevLetter = function(line, character) {
+      if (line == 0 && character <= 0) return [0, 0] // stay on first letter
+      if (character <= 0) return [line - 1, charactersNumber[line - 1] - 1]
+      return [line, character - 1]
+    }
+
+    document.addEventListener('keydown', (event) => {
+      console.log(event.code)
+      if (event.code === "ArrowLeft") setMark(...prevLetter(...currentMark))
+      if (event.code === "ArrowRight") setMark(...nextLetter(...currentMark))
+      if (event.code === "Digit0") setMark(0, 0)
+    })
+
+    setMark(0, 0)
+
   </script>
 {% endblock %}
