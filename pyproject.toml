@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Aplikacja do dodawania akordów do pieśni ze Śpiewnika Pielgrzyma"
 authors = ["Norbiox <norbertchmiel.it@gmail.com>"]
 readme = "README.md"
-packages = [{include = "lyrics_chordifier"}]
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"

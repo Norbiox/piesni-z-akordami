@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request
 
-from lyrics_chordifier.models import Hymn
 
 from .auth import auth
 from .db import get_database
+from .models import Hymn
 from .repository import HymnRepository
 
 blueprint = Blueprint("views", __name__)
