@@ -7,11 +7,10 @@
   <div id="chords_menu" class="sticky-top justify-content-center" style="width: 100%;">
     <div class="d-flex flex-row justify-content-center">
       {% for chord_base in ("c", "cis", "d", "dis", "e", "f", "fis", "g", "gis", "a", "b", "h") %}
-        <div class="btn-group-vertical btn-group-sm" role="toolbar">
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base.title() }}')">{{ chord_base.title() }}</button>
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base }}')">{{ chord_base }}</button>
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base.title() }}7')">{{ chord_base.title() }}7</button>
-          <button type="button" class="chordButton btn btn-primary" onclick="setChord('{{ chord_base }}7')">{{ chord_base }}7</button>
+        <div id="chord_buttons_{{ chord_base }}" class="btn-group-vertical btn-group-sm" role="toolbar">
+          {% for chord in (chord_base.title(), chord_base, chord_base.title()+"7", chord_base+"7") %}
+          <button id="chord_button_{{chord}}" type="button" class="chordButton btn btn-primary" onclick="setChord('{{chord}}')">{{chord}}</button>
+          {% endfor %}
         </div>
       {% endfor %}
     </div>
@@ -52,6 +51,8 @@
 
     var currentMark = [0, 0];
     const characterDiv = (mark=currentMark) => document.getElementById(coordsToId(...mark))
+    const charValue = (mark=currentMark) => characterDiv(mark).children[1].innerHTML
+    const chordDiv = (mark=currentMark) => characterDiv(mark).children[0]
 
     // Mark clicked character as currently edited - sets 'currentMark' variable for chord setting
     const setMark = function(line, character) {
@@ -66,7 +67,7 @@
     // Set chord for currently marked character (or any given) and send to backend
     const setChord = function(chord, mark=currentMark) {
       console.log(`Setting chord ${chord} on current character`)
-      characterDiv(mark).children[0].innerHTML = chord
+      chordDiv().innerHTML = chord
       let [line, character] = mark
       chord = chord.trim()
       fetch(
@@ -94,11 +95,48 @@
       return [line, character - 1]
     }
 
+    const chords = {
+      "c": ['C', 'c', 'C7', 'c7'],
+      "cis": ['Cis', 'cis', 'Cis7', 'cis7'],
+      "d": ['D', 'd', 'D7', 'd7'],
+      "dis": ['Dis', 'dis', 'Dis7', 'dis7'],
+      "e": ['E', 'e', 'E7', 'e7'],
+      "f": ['F', 'f', 'F7', 'f7'],
+      "fis": ['Fis', 'fis', 'Fis7', 'fis7'],
+      "g": ['G', 'g', 'G7', 'g7'],
+      "gis": ['Gis', 'gis', 'Gis7', 'gis7'],
+      "a": ['A', 'a', 'A7', 'a7'],
+      "b": ['B', 'b', 'B7', 'b7'],
+      "h": ['H', 'h', 'H7', 'h7'],
+    }
+
+    // TODO: create chord buttons from above array
+
+    const nextChord = function(line, character, chord_base) {
+      // Check if current chord is set
+      let currentChord = chordDiv([line, character]).innerHTML
+      let nextChord
+      if (currentChord.toLowerCase().startsWith(chord_base)) {
+        console.log(currentChord.toLowerCase())
+        return chords[chord_base][(chords[chord_base].indexOf(currentChord) + 1) % 4]
+      } else {
+        return chords[chord_base][0]
+      }
+    }
+
     document.addEventListener('keydown', (event) => {
       console.log(event.code)
       if (event.code === "ArrowLeft") setMark(...prevLetter(...currentMark))
       if (event.code === "ArrowRight") setMark(...nextLetter(...currentMark))
       if (event.code === "Digit0") setMark(0, 0)
+      if (event.code === "KeyC") setChord(nextChord(...currentMark, 'c'))
+      if (event.code === "KeyD") setChord(nextChord(...currentMark, 'd'))
+      if (event.code === "KeyE") setChord(nextChord(...currentMark, 'e'))
+      if (event.code === "KeyF") setChord(nextChord(...currentMark, 'f'))
+      if (event.code === "KeyG") setChord(nextChord(...currentMark, 'g'))
+      if (event.code === "KeyA") setChord(nextChord(...currentMark, 'a'))
+      if (event.code === "KeyB") setChord(nextChord(...currentMark, 'b'))
+      if (event.code === "KeyH") setChord(nextChord(...currentMark, 'h'))
     })
 
     setMark(0, 0)
