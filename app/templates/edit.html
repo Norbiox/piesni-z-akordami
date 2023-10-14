@@ -15,7 +15,7 @@
       {% endfor %}
     </div>
     <div class="d-flex flex-row justify-content-center">
-      <button type="button" class="resetChordButton btn btn-primary" onclick="setChord('&nbsp;')">Reset</button>
+      <button type="button" class="resetChordButton btn btn-primary" onclick="setChord()">Reset</button>
     </div>
   </div>
 
@@ -65,9 +65,14 @@
     }
 
     // Set chord for currently marked character (or any given) and send to backend
-    const setChord = function(chord, mark=currentMark) {
+    const setChord = function(chord=null, mark=currentMark) {
       console.log(`Setting chord ${chord} on character ${mark}`)
-      chordDiv().innerHTML = chord
+      if (chord == null) {
+        chord = ''
+        chordDiv().innerHTML = '&nbsp;'
+      } else {
+        chordDiv().innerHTML = chord
+      }
       let [line, character] = mark
       chord = chord.trim()
       fetch(
@@ -137,6 +142,7 @@
       if (event.code === "KeyA") setChord(nextChord(...currentMark, 'a'))
       if (event.code === "KeyB") setChord(nextChord(...currentMark, 'b'))
       if (event.code === "KeyH") setChord(nextChord(...currentMark, 'h'))
+      if (event.code === "KeyR") setChord()
     })
 
     setMark(0, 0)
