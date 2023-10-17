@@ -46,6 +46,7 @@
   </form>
   {% endif %}
 
+  {% if hymn.editable %}
   <script>
     const linesNumber = document.getElementsByClassName('line').length
     console.log(`Number of lines: ${linesNumber}`)
@@ -167,4 +168,5 @@
     setMark(0, 0)
 
   </script>
+  {% endif %}
 {% endblock %}

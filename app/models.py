@@ -61,6 +61,9 @@ class Hymn(BaseEntity):
 
     def set_chord(self, line: int, character: int, chord: str) -> None:
         """Set chord for specific character"""
+        if not self.editable:
+            return
+
         self.chords[line][character] = chord
 
     @property
@@ -127,7 +130,9 @@ class Hymn(BaseEntity):
 
     @classmethod
     def from_dict(cls, data: dict) -> Hymn:
-        data["editable"] = not data.pop("chords_verified", not data.get("editable", True))
+        chords_verified = data.pop("chords_verified", "")
+        if "editable" not in data:
+            data["editable"] = not chords_verified
         hymn = cls(**data)
         return hymn
 
