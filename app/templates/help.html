@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Pomoc{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <section id="pomoc">
+    <div>
+      <h2>Co to jest?</h2>
+      <p>Niniejsza aplikacja służy przede wszystkim wygodnemu dodawania akordów do pieśni ze Śpiewnika Pielgrzyma.</p>
+      <p>Oczywiście można z niej korzystać także do grania i śpiewania</p>
+    </div>
+    <div>
+      <h2>Jak z tego korzystać?</h2>
+      <p>W prawym górnym rogu znajduje się przycisk rozwijalnego menu, skąd można wejść na listę pieśni.</p>
+      <p>Aby zobaczyć pieśń i ją edytować należy kliknąć link do wybranej pieśni.</p>
+    </div>
+    <div>
+      <h2>Jak edytować i dodawać akordy do pieśni?</h2>
+      <p>Edycję można prowadzić za pomocą myszki i/lub klawiatury.</p>
+      <p>
+        Aby dodać akord najpierw należy kliknąć literę, nad którą powinien się on pojawić.
+        Litera zostanie zaznaczona czerwonym obramowaniem.
+        Pomiędzy literami można przechodzić za pomocą strzałek lewo/prawo
+      </p>
+      <p>
+        Gdy litera jest zaznaczona należy kliknąć wybrany akord na panelu akordów.
+        Można też dodać akord wybierając go na klawiaturze. Na przykład: pojedyncze kliknięcie "c" doda akord "C", kolejne zmieni go w "c", następne w "C7" a jeszcze kolejne w "c7".
+        Aby dodać akord "cis" za pomocą klawiatury należy najpierw dodać akord "c" a następnie kliknąć "i". Powtórne kliknięcie "i" przywróci akord "c".
+      </p>
+    </div>
+  </section>
+{% endblock %}

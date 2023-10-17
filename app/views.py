@@ -23,6 +23,12 @@ def edit(uid: str) -> str:
     return render_template("edit.html", hymn=repo.get_hymn_by_uid(uid))
 
 
+@blueprint.route("/help", methods=["GET"])
+@auth.login_required
+def help() -> str:
+    return render_template("help.html")
+
+
 @blueprint.route("/add_chord/<uid>", methods=["POST"])
 @auth.login_required
 def add_chord(uid: str) -> str:
