@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, Response
 
 from .views import blueprint as views_blueprint
 

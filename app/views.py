@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, abort, render_template, request
 
 
 from .auth import auth, is_admin
@@ -11,7 +11,7 @@ blueprint = Blueprint("views", __name__)
 
 @blueprint.context_processor
 def is_user_admin():
-    return {"is_admin": is_admin(auth.current_user() or "")}
+    return {"is_admin": is_admin(auth.current_user())}
 
 
 @blueprint.route("/", methods=["GET"])
@@ -21,11 +21,17 @@ def index() -> str:
     return render_template("index.html", hymns=sorted(repo.get_hymns(), key=lambda x: x.number))
 
 
-@blueprint.route("/edit/<uid>", methods=["GET"])
+@blueprint.route("/edit/<uid>", methods=["GET", "POST"])
 @auth.login_required
 def edit(uid: str) -> str:
     repo = HymnRepository(get_database())
-    return render_template("edit.html", hymn=repo.get_hymn_by_uid(uid))
+    hymn = repo.get_hymn_by_uid(uid)
+
+    if request.method == "POST" and is_admin(auth.current_user()):
+        hymn.editable = not hymn.editable
+        repo.save_hymn(hymn)
+
+    return render_template("edit.html", hymn=hymn)
 
 
 @blueprint.route("/help", methods=["GET"])

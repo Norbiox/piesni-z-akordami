@@ -5,6 +5,7 @@ Authentication system is based on HTTPBasicAuth and consists of 2 users:
 - regular user.
 """
 import os
+from typing import Any
 
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -24,7 +25,7 @@ if admin_credentials[0] == credentials[0]:
     raise ValueError("admin username cannot be identical as user username")
 
 
-def is_admin(username: str) -> bool:
+def is_admin(username: Any) -> bool:
     """Verify if given username is admin"""
     if not admin_credentials[0]:
         return False

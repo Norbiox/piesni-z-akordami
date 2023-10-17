@@ -36,6 +36,16 @@
     {% endfor %} 
   </section>
 
+  {% if is_admin %}
+  <form id="weryfikacja" method="POST">
+    {% if hymn.editable %}
+    <button id="verification_button" type="submit" class="btn btn-success btn-lg btn-block">Mark as verified</button>
+    {% else %}
+    <button id="verification_button" type="submit" class="btn btn-danger btn-lg btn-block">Mark as unverified</button>
+    {% endif %}
+  </form>
+  {% endif %}
+
   <script>
     const linesNumber = document.getElementsByClassName('line').length
     console.log(`Number of lines: ${linesNumber}`)
