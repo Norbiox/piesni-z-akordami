@@ -1,12 +1,17 @@
 from flask import Blueprint, render_template, request
 
 
-from .auth import auth
+from .auth import auth, is_admin
 from .db import get_database
 from .models import Hymn
 from .repository import HymnRepository
 
 blueprint = Blueprint("views", __name__)
+
+
+@blueprint.context_processor
+def is_user_admin():
+    return {"is_admin": is_admin(auth.current_user() or "")}
 
 
 @blueprint.route("/", methods=["GET"])
