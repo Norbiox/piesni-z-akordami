@@ -129,6 +129,14 @@
       }
     }
 
+    const modifyChord = function(line, character) {
+      // add 'is' suffix to chord or remove if chord contains "is" already
+      let currentChord = chordDiv([line, character]).innerHTML
+      if (currentChord == "&nbsp;") return currentChord
+      if (currentChord.includes("is")) return currentChord.replace("is", "")
+      return currentChord.substr(0, 1) + "is" + currentChord.substr(1)
+    }
+
     document.addEventListener('keydown', (event) => {
       console.log(event.code)
       if (event.code === "ArrowLeft") setMark(...prevLetter(...currentMark))
@@ -142,6 +150,7 @@
       if (event.code === "KeyA") setChord(nextChord(...currentMark, 'a'))
       if (event.code === "KeyB") setChord(nextChord(...currentMark, 'b'))
       if (event.code === "KeyH") setChord(nextChord(...currentMark, 'h'))
+      if (event.code === "KeyI") setChord(modifyChord(...currentMark))
       if (event.code === "KeyR") setChord()
     })
 
