@@ -1,16 +1,30 @@
+"""Application models and entities"""
 from __future__ import annotations
 
 import roman
 
 
-class Hymn:
+class BaseEntity:
+    """Base class for entities"""
+
+    _uid: str
+
+    @property
+    def uid(self) -> str:
+        """Entity unique identifier"""
+        return self._uid
+
+
+class Hymn(BaseEntity):
+    """Hymn entity"""
+
     def __init__(
         self,
         uid: str,
         title: str,
         lyrics: list[list[str]],
         chords: list[list[str]] | None = None,
-        chords_verified: bool = False,
+        editable: bool = True,
     ):
         self._uid: str = uid
         self._title: str = title
@@ -18,27 +32,26 @@ class Hymn:
         chords = chords or list(list("" for _ in line) for line in lyrics)
         self._validate_chords(chords)
         self._chords: list[list[str]] = chords
-        self.chords_verified = chords_verified
+        self.editable = editable
 
     @classmethod
     def from_text(cls, uid: str, text: str) -> Hymn:
         """Creates hymn from text"""
-        return cls(uid, title(text), lyrics(text))
-
-    @property
-    def uid(self) -> str:
-        return self._uid
+        return cls(uid, read_title(text), read_lyrics(text))
 
     @property
     def title(self) -> str:
+        """Hymns title"""
         return self._title
 
     @property
     def lyrics(self) -> list[list[str]]:
+        """Hymns lyrics"""
         return self._lyrics
 
     @property
     def chords(self) -> list[list[str]]:
+        """Hymns chords"""
         return self._chords
 
     @chords.setter
@@ -47,6 +60,7 @@ class Hymn:
         self._chords = new_chords
 
     def set_chord(self, line: int, character: int, chord: str) -> None:
+        """Set chord for specific character"""
         self.chords[line][character] = chord
 
     @property
@@ -108,16 +122,17 @@ class Hymn:
             "title": self.title,
             "lyrics": self.lyrics,
             "chords": self.chords,
-            "chords_verified": self.chords_verified,
+            "editable": self.editable,
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> Hymn:
+        data["editable"] = not data.pop("chords_verified", not data.get("editable", True))
         hymn = cls(**data)
         return hymn
 
 
-def title(hymn: str) -> str:
+def read_title(hymn: str) -> str:
     """Returns title of hymn found in it's first line
 
     >>> title("1. Title\\n\\nLine1\\n\\nLine2")
@@ -126,7 +141,7 @@ def title(hymn: str) -> str:
     return hymn.split("\n")[0]
 
 
-def lyrics(hymn: str) -> list[list[str]]:
+def read_lyrics(hymn: str) -> list[list[str]]:
     """Returns lyrics of hymn as characters per line
 
     >>> lyrics("1. Title\\nLine1\\nLine2")
